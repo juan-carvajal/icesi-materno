@@ -4,9 +4,25 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', component: () => import('pages/Index.vue') },
-    { path: 'login', component: () => import('pages/Login.vue') }
+    children: [
+      { path: '', component: () => import('pages/Index.vue') },
+      { path: 'login', component: () => import('pages/Login.vue') },
     ],
+  },
+  {
+    path: '/podcast',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      {
+        path: '',
+        component: () => import('pages/podcast/Home.vue'),
+      },
+    ],
+  },
+  {
+    path: '/demo',
+    component: () => import('layouts/DemoLayout.vue'),
+    children: [{ path: '', component: () => import('pages/DemoPage.vue') }],
   },
 
   // Always leave this as last one,
