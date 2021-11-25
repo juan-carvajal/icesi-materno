@@ -119,9 +119,8 @@ export default defineComponent({
 
         if (this.imageFile) {
           await uploadBytes(imageRef, this.imageFile);
+          this.internalPodcast.imageURL = imageURL;
         }
-
-        this.internalPodcast.imageURL = imageURL;
 
         const fileURL = `podcast/media/${uuidv4()}.mp3`;
         const fileRef = storageRef(storage, fileURL);

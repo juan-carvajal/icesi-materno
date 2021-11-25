@@ -4,5 +4,6 @@ export interface Podcast
   description: string,
   mediaURL?: string,
   ID?: string,
-  imageURL?:string
+  imageURL?:string,
+  creationDate: Date
 }
