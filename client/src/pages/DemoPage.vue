@@ -21,21 +21,19 @@
         </template>
       </q-table>
     </div>
-    <!-- <av-line
-      :line-width="2"
-      line-color="lime"
-      audio-src="sample-audio.mp3"
-      ref="exRef"
-    ></av-line> -->
-    <audio ref="foo" src="sample-audio.mp3"></audio>
-    <av-waveform
-      :line-width="2"
-      line-color="lime"
-      canv-class="full-width"
-      ref-link="foo"
-      v-if="foo"
-      playtime-font-family="Roboto"
-    ></av-waveform>
+    <case-card :caseProp="_case"></case-card>
+    <div
+        class="inline bg-amber rounded-borders cursor-pointer"
+        style="max-width: 300px"
+      >
+        <div class="fit flex flex-center text-center non-selectable q-pa-md">
+          I am groot!<br>(Hover me!)
+        </div>
+
+        <q-tooltip>
+          I am groot!
+        </q-tooltip>
+      </div>
     <q-btn icon="play_arrow" @click="playFile"></q-btn>
   </q-page>
 </template>
@@ -45,6 +43,9 @@ import { defineComponent } from 'vue';
 import { useQuasar } from 'quasar';
 import { ref, computed, watch, watchEffect } from 'vue';
 import * as faker from 'faker';
+import CaseCard from 'components/cases/CaseCard.vue'
+import {Case, CaseType,
+CaseState, CasePriority} from 'components/cases/models'
 
 const numberOfFakes = 100;
 
@@ -73,6 +74,9 @@ for (let index = 0; index < numberOfFakes; index++) {
 }
 
 export default defineComponent({
+  components:{
+    CaseCard
+  },
   setup() {
     const $q = useQuasar();
 
@@ -125,12 +129,31 @@ export default defineComponent({
       }
     );
 
+    const _case: Case = {
+      ID:'1',
+      title: 'test tes test tet',
+      type: CaseType.ADMINISTRATIVE,
+      state: CaseState.TODO,
+      created: new Date(),
+      lastUpdateState: new Date(),
+      assignee: {
+        email: 'egeffffg',
+        uid: 'fff'
+      },
+      reported:{
+        email: 'egeg',
+        uid: 'fff'
+      },
+      priority: CasePriority.LOW
+    }
+
     return {
       exRef,
       rows,
       foo,
       filter,
       pagination,
+      _case,
       playFile,
       columns: [
         { name: 'uuid', label: 'ID', field: 'uuid' },

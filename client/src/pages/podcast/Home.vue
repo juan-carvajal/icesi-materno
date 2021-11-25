@@ -1,11 +1,20 @@
 <template>
   <q-page class="q-ma-md">
-    <q-btn @click="openDialog" label="create"></q-btn>
+    <q-toolbar class="text-primary q-px-none">
+      <q-icon name="podcasts" />
+      <q-toolbar-title> Podcasts </q-toolbar-title>
+
+      <q-space></q-space>
+
+      <q-btn @click="openDialog" flat round icon="add"></q-btn>
+    </q-toolbar>
+
     <q-input v-model="search" filled type="search">
       <template v-slot:append>
         <q-icon name="search" />
       </template>
     </q-input>
+
     <q-list>
       <podcast-line
         @click="selectPodcast(podcast)"
@@ -28,11 +37,11 @@ import { Podcast } from 'src/models/podcast';
 import CreateDialog from './Create.vue';
 import usePodcastRepositories from 'src/composables/podcast/podcastRepositories';
 import PodcastLine from 'components/podcast/PodcastLine.vue';
-import PodcastPlayer from 'components/podcast/PodcastPlayer.vue'
+import PodcastPlayer from 'components/podcast/PodcastPlayer.vue';
 export default defineComponent({
   components: {
     PodcastLine,
-    PodcastPlayer
+    PodcastPlayer,
   },
   setup() {
     const $q = useQuasar();
@@ -40,8 +49,6 @@ export default defineComponent({
     const audioRef = ref<HTMLAudioElement>();
 
     const selectedPodcast = ref<Podcast>();
-
-
 
     const { podcasts } = usePodcastRepositories();
 
@@ -69,8 +76,8 @@ export default defineComponent({
   },
   methods: {
     selectPodcast(podcast: Podcast) {
-      this.selectedPodcast = podcast
-      this.podcastDialogOpen = true
+      this.selectedPodcast = podcast;
+      this.podcastDialogOpen = true;
     },
   },
   data() {
