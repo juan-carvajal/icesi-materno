@@ -131,7 +131,7 @@ export default defineComponent({
 
     const _case: Case = {
       ID:'1',
-      title: 'test tes test tet',
+      title: 'test test test test',
       type: CaseType.ADMINISTRATIVE,
       state: CaseState.TODO,
       created: new Date(),

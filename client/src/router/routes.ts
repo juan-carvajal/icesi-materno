@@ -4,21 +4,20 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
+    meta: {requiresAuth: true},
     children: [
-      { path: '', component: () => import('pages/Index.vue') },
-      { path: 'login', component: () => import('pages/Login.vue') },
-    ],
-  },
-  {
-    path: '/podcast',
-    component: () => import('layouts/MainLayout.vue'),
-    children: [
+      { path: '', redirect: 'cases' },
       {
-        path: '',
+        path: 'podcast',
         component: () => import('pages/podcast/Home.vue'),
+      },
+      {
+        path: 'cases',
+        component: () => import('pages/cases/Home.vue'),
       },
     ],
   },
+  { path: '/login', component: () => import('pages/Login.vue') },
   {
     path: '/demo',
     component: () => import('layouts/DemoLayout.vue'),

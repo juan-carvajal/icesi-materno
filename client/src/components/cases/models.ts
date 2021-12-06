@@ -4,10 +4,10 @@ export enum CaseType {
 }
 
 export enum CaseState {
-  TODO = 'TODO',
-  IN_PROGRESS = 'IN_PROGRESS',
-  BLOCKED = 'BLOCKED',
-  RESOLVED = 'RESOLVED'
+  TODO = 'Por Hacer',
+  IN_PROGRESS = 'En Progreso',
+  BLOCKED = 'Bloqueados',
+  RESOLVED = 'Resueltos'
 }
 
 export enum CasePriority {

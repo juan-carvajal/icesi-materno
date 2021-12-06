@@ -1,5 +1,5 @@
 <template>
-  <q-card class="fit">
+  <q-card style="max-width:100%;">
     <q-card-section class="q-pa-sm">
       <p class="q-mb-none ellipsis-3-lines">{{ caseProp.title }}</p>
       <q-badge

@@ -17,10 +17,12 @@ import routes from './routes';
  * with the Router instance.
  */
 
-export default route<StateInterface>(function (/* { store, ssrContext } */) {
+export default route<StateInterface>(function (/* { store, ssrContext } */ store) {
   const createHistory = process.env.SERVER
     ? createMemoryHistory
-    : (process.env.VUE_ROUTER_MODE === 'history' ? createWebHistory : createWebHashHistory);
+    : process.env.VUE_ROUTER_MODE === 'history'
+    ? createWebHistory
+    : createWebHashHistory;
 
   const Router = createRouter({
     scrollBehavior: () => ({ left: 0, top: 0 }),
@@ -32,6 +34,21 @@ export default route<StateInterface>(function (/* { store, ssrContext } */) {
     history: createHistory(
       process.env.MODE === 'ssr' ? void 0 : process.env.VUE_ROUTER_BASE
     ),
+  });
+
+  Router.beforeEach((to, from, next) => {
+
+    const isLoggedIn = store.store.state.auth.isLoggedIn
+    const requiredAuth = to.meta.requiresAuth as boolean
+
+    if(requiredAuth && !isLoggedIn){
+      next({ path: '/login', query: { redirect: to.path } })
+      return
+    }
+
+    next()
+
+
   });
 
   return Router;

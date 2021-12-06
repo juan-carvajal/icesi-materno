@@ -38,9 +38,10 @@ if (process.env.NODE_ENV === 'development') {
   connectFunctionsEmulator(functions, 'localhost', 5001)
 }
 
-export default boot<StateInterface>(({ store }) => {
+export default boot<StateInterface>(({ store, router }) => {
   auth.onAuthStateChanged((user) => {
     if (!user) {
+      void router.push('/login')
       store.commit('auth/logUserOut')
       return
     }
