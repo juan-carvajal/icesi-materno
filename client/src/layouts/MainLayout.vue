@@ -20,6 +20,13 @@
           >{{ ($store.state.auth.email ?? 'A').toUpperCase()[0] }}
           <q-menu>
             <q-list style="min-width: 100px">
+              <q-item dense
+                clickable
+                v-close-popup
+                to="profile"
+                >
+                <q-item-section>Mi perfil</q-item-section>
+              </q-item>
               <q-item
                 dense
                 clickable

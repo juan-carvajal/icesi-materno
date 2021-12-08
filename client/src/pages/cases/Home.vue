@@ -25,8 +25,8 @@
         <q-separator></q-separator>
 
         <q-card-section class="column q-gutter-y-sm q-pa-sm">
-          <case-card v-for="i in Math.round(Math.random()*10)" :key="i" :caseProp="_case"></case-card>
-          <case-card :caseProp="_case"></case-card>
+          <case-card v-for="i in Math.round(Math.random()*10)" :key="i" :caseProp="testCase"></case-card>
+          <case-card :caseProp="testCase"></case-card>
         </q-card-section>
       </q-card>
     </div>
@@ -49,7 +49,7 @@ export default defineComponent({
   setup() {
     const caseStates = ref(Object.values(CaseState));
 
-    const _case: Case = {
+    const testCase: Case = {
       ID: '1',
       title: 'test test test test test test test test test test',
       type: CaseType.ADMINISTRATIVE,
@@ -67,7 +67,7 @@ export default defineComponent({
       priority: CasePriority.HIGH,
     };
 
-    return { caseStates, _case };
+    return { caseStates, testCase };
   },
 });
 </script>

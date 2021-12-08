@@ -1,9 +1,43 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+
+    function getUserRoleID(){
+      return get(/databases/$(database)/documents/userRoles/$(request.auth.uid)).data.roleID
+    }
+    
+    function getRolePermissions(roleID){
+    	return exists(/databases/$(database)/documents/roles/$(roleID)) ? get(/databases/$(database)/documents/roles/$(roleID)).data.permissions : []
+    }
+
+    function checkAuthorization(requiredPermission) {
+    	let roleID = getUserRoleID();
+    	let permissions = getRolePermissions(roleID);
+      return request.auth.uid != null && (requiredPermission in permissions || 'admin' in permissions)
+    }
+    
     match /{document=**} {
-      allow read, write: if
-          request.time < timestamp.date(2021, 12, 1);
+      allow read, write: if false;
+    }
+
+    match /roles/{role} {
+      allow read: if request.auth != null;
+      allow write: if checkAuthorization('admin')
+    }
+
+    match /userRoles/{userRole} {
+      allow read: if request.auth != null;
+      allow write: if checkAuthorization('admin')
+    }
+    
+    match /podcasts/{podcast} {
+      allow read: if request.auth != null;
+      allow write: if checkAuthorization('podcasts.write')
+    }
+    
+    match /notifications/{notification} {
+      allow read: if checkAuthorization('notifications.read');
+      allow write: if checkAuthorization('notifications.write')
     }
   }
 }
