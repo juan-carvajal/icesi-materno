@@ -1,20 +1,16 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from 'firebase/app';
 import { getAnalytics } from 'firebase/analytics';
-import { getAuth, User } from 'firebase/auth';
+import { getAuth } from 'firebase/auth';
 import { getPerformance } from 'firebase/performance';
 import {
   getFirestore,
   connectFirestoreEmulator,
-  getDoc,
-  doc,
 } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
 import { boot } from 'quasar/wrappers';
 import { StateInterface } from '../store';
-import { AuthStateInterface } from 'src/store/auth/state';
-import { Store } from 'vuex';
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -44,43 +40,42 @@ if (process.env.NODE_ENV === 'development') {
   connectFunctionsEmulator(functions, 'localhost', 5001);
 }
 
-async function handlerUserAuth(store: Store<StateInterface>, user: User) {
-  const userRole = await getDoc(doc(db, 'userRoles', user.uid));
+// async function handlerUserAuth (store: Store<StateInterface>, user: User) {
+//   const userRole = await getDoc(doc(db, 'userRoles', user.uid));
 
-  let permissions: Array<string> = [];
-  let roleName: string | undefined = undefined;
+//   let permissions: Array<string> = [];
+//   let roleName: string | undefined = undefined;
 
-  if (userRole.exists()) {
-    const roleID = userRole?.data()?.roleID as string;
+//   if (userRole.exists()) {
+//     const roleID = userRole?.data()?.roleID as string;
 
-    const roleDocument = await getDoc(doc(db, 'roles', roleID));
+//     const roleDocument = await getDoc(doc(db, 'roles', roleID));
 
-    if (roleDocument.exists()) {
-      permissions = roleDocument.data().permissions as Array<string>;
-      roleName = roleDocument.data().name as string;
-    }
-  }
+//     if (roleDocument.exists()) {
+//       permissions = roleDocument.data().permissions as Array<string>;
+//       roleName = roleDocument.data().name as string;
+//     }
+//   }
 
-  const storeUser: AuthStateInterface = {
-    displayName: user?.displayName ?? undefined,
-    email: user?.email ?? undefined,
-    uid: user?.uid,
-    isLoggedIn: true,
-    permissions,
-    roleName,
-  };
-  store.commit('auth/setUserProps', storeUser);
-}
+//   const storeUser: AuthStateInterface = {
+//     displayName: user?.displayName ?? undefined,
+//     email: user?.email ?? undefined,
+//     uid: user?.uid,
+//     isLoggedIn: true,
+//     permissions,
+//     roleName,
+//   };
+//   store.commit('auth/setUserProps', storeUser);
+// }
 
-export default boot<StateInterface>(({ store, router }) => {
+export default boot<StateInterface>(({ router }) => {
   auth.onAuthStateChanged((user) => {
     if (!user) {
       void router.push('/login');
-      store.commit('auth/logUserOut');
       return;
     }
 
-    void handlerUserAuth(store, user);
+    // void handlerUserAuth(store, user);
   });
 });
 

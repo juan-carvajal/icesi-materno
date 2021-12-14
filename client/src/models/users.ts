@@ -1,6 +1,6 @@
 export enum DocumentType{
-  CEDULA = "Cédula de ciudadanía",
-  PEP = "Permiso especial de permanencia"
+  CEDULA = 'Cédula de ciudadanía',
+  PEP = 'Permiso especial de permanencia'
 }
 
 

@@ -1,4 +1,4 @@
-import { UserData } from "src/models/users";
+import { UserData } from 'src/models/users';
 
 
 export interface AuthStateInterface {
@@ -8,7 +8,7 @@ export interface AuthStateInterface {
   isLoggedIn: boolean;
   permissions: Array<string>
   roleName?: string,
-  userData: UserData
+  userData?: UserData
 }
 
 function state(): AuthStateInterface {

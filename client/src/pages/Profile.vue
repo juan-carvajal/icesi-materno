@@ -26,7 +26,9 @@
           </q-card-section>
           <q-separator> </q-separator>
           <q-card-section class="text-center">
-            <q-badge class="text-overline"> {{ currentUser.roleName ?? 'Anónimo' }} </q-badge>
+            <q-badge class="text-overline">
+              {{ currentUser.roleName ?? 'Anónimo' }}
+            </q-badge>
           </q-card-section>
           <q-separator> </q-separator>
           <q-card-section>
@@ -34,24 +36,37 @@
               <q-input
                 class="col-12 col-sm-6"
                 type="text"
-                label="Primer nombre"
+                label="Nombres"
+                v-model="userData.firstName"
               ></q-input>
               <q-input
                 class="col-12 col-sm-6"
                 type="text"
-                label="Primer nombre"
+                label="Apellidos"
+                v-model="userData.lastName"
               ></q-input>
               <q-select
                 class="col-12 col-sm-6"
                 label="Tipo de documento"
                 :options="documentTypes"
+                v-model="userData.documentType"
               ></q-select>
               <q-input
                 class="col-12 col-sm-6"
                 type="text"
                 label="Número de documento"
+                mask="###.###.###.###.###"
+                reverse-fill-mask
+                maxlength="15"
+                v-model="userData.documentNumber"
               ></q-input>
-              <q-input class="col-12" type="text" mask="phone" label="Teléfono">
+              <q-input
+                class="col-12"
+                type="text"
+                mask="phone"
+                label="Teléfono"
+                v-model="userData.phone"
+              >
                 <template v-slot:prepend>
                   <p class="q-mb-none text-body1">+57</p>
                 </template>
@@ -64,14 +79,24 @@
   </q-page>
 </template>
 
-<script>
+<script lang="ts">
 import { getBackgroundColor } from 'src/utils/color';
-import { defineComponent } from 'vue';
-import { DocumentType } from 'src/models/users';
+import { defineComponent, ref, watch } from 'vue';
+import { DocumentType, UserData } from 'src/models/users';
+import { useStore } from 'src/store';
 export default defineComponent({
   setup() {
     const documentTypes = Object.values(DocumentType);
-    return { getBackgroundColor, documentTypes };
+    const store = useStore();
+
+    const userData = ref<UserData>({ ...store.state.auth.userData } ?? {});
+    watch(
+      () => store.state.auth.userData,
+      () => {
+        userData.value = { ...store.state.auth.userData } ?? {};
+      }
+    );
+    return { getBackgroundColor, documentTypes, userData };
   },
   computed: {
     currentUser() {
