@@ -2,7 +2,7 @@
   <div class="bg-primary fullscreen row justify-center items-center">
     <div class="column">
       <div class="row items-center justify-center">
-        <h5 class="text-h5 text-center text-white q-my-md">App Name</h5>
+        <h5 class="text-h5 text-center text-white q-my-md">ConectaDos</h5>
       </div>
       <div class="row">
         <q-form @submit.prevent="logInUser">

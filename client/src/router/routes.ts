@@ -23,6 +23,11 @@ const routes: RouteRecordRaw[] = [
   },
   { path: '/login', component: () => import('pages/Login.vue') },
   {
+    path: '/admin',
+    component: () => import('layouts/MainLayout.vue'),
+    meta: {requiresAuth: true, requiredPermissions: ['admin']},
+  },
+  {
     path: '/demo',
     component: () => import('layouts/DemoLayout.vue'),
     children: [{ path: '', component: () => import('pages/DemoPage.vue') }],

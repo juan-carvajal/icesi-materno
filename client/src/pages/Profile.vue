@@ -1,8 +1,11 @@
 <template>
   <q-page class="q-ma-md">
-    <p class="text-h6 text-grey">Perfil de Usuario</p>
+    <q-toolbar class="text-primary q-px-none">
+      <q-icon name="account_circle" />
+      <q-toolbar-title> Perfil de Usuario </q-toolbar-title>
+    </q-toolbar>
     <div class="row q-col-gutter-sm">
-      <div class="col-4">
+      <div class="col-12">
         <q-card>
           <q-card-section class="text-center">
             <q-avatar
@@ -23,13 +26,39 @@
           </q-card-section>
           <q-separator> </q-separator>
           <q-card-section class="text-center">
-            <q-badge>Administrador</q-badge>
+            <q-badge class="text-overline"> {{ currentUser.roleName ?? 'Anónimo' }} </q-badge>
+          </q-card-section>
+          <q-separator> </q-separator>
+          <q-card-section>
+            <q-form class="row q-col-gutter-sm">
+              <q-input
+                class="col-12 col-sm-6"
+                type="text"
+                label="Primer nombre"
+              ></q-input>
+              <q-input
+                class="col-12 col-sm-6"
+                type="text"
+                label="Primer nombre"
+              ></q-input>
+              <q-select
+                class="col-12 col-sm-6"
+                label="Tipo de documento"
+                :options="documentTypes"
+              ></q-select>
+              <q-input
+                class="col-12 col-sm-6"
+                type="text"
+                label="Número de documento"
+              ></q-input>
+              <q-input class="col-12" type="text" mask="phone" label="Teléfono">
+                <template v-slot:prepend>
+                  <p class="q-mb-none text-body1">+57</p>
+                </template>
+              </q-input>
+            </q-form>
           </q-card-section>
         </q-card>
-      </div>
-
-      <div class="col-8">
-        <q-card>hola </q-card>
       </div>
     </div>
   </q-page>
@@ -38,9 +67,11 @@
 <script>
 import { getBackgroundColor } from 'src/utils/color';
 import { defineComponent } from 'vue';
+import { DocumentType } from 'src/models/users';
 export default defineComponent({
   setup() {
-    return { getBackgroundColor };
+    const documentTypes = Object.values(DocumentType);
+    return { getBackgroundColor, documentTypes };
   },
   computed: {
     currentUser() {

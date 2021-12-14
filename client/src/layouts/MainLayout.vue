@@ -11,12 +11,13 @@
           @click="toggleLeftDrawer"
         />
 
-        <q-toolbar-title> App </q-toolbar-title>
+        <q-toolbar-title> ConectaDos </q-toolbar-title>
 
         <q-avatar
           :style="{
             backgroundColor: getBackgroundColor($store.state.auth.email ?? ''),
           }"
+          class="text-black"
           >{{ ($store.state.auth.email ?? 'A').toUpperCase()[0] }}
           <q-menu>
             <q-list style="min-width: 100px">
