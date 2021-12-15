@@ -32,24 +32,30 @@
           </q-card-section>
           <q-separator> </q-separator>
           <q-card-section>
-            <q-form class="row q-col-gutter-sm">
+            <q-form
+              @submit.prevent="updateUserData(userData, currentUser?.uid ?? '')"
+              class="row q-col-gutter-sm"
+            >
               <q-input
                 class="col-12 col-sm-6"
                 type="text"
                 label="Nombres"
                 v-model="userData.firstName"
+                :rules="[(val) => !!val || 'Este campo es requerido']"
               ></q-input>
               <q-input
                 class="col-12 col-sm-6"
                 type="text"
                 label="Apellidos"
                 v-model="userData.lastName"
+                :rules="[(val) => !!val || 'Este campo es requerido']"
               ></q-input>
               <q-select
                 class="col-12 col-sm-6"
                 label="Tipo de documento"
                 :options="documentTypes"
                 v-model="userData.documentType"
+                :rules="[(val) => !!val || 'Este campo es requerido']"
               ></q-select>
               <q-input
                 class="col-12 col-sm-6"
@@ -57,20 +63,27 @@
                 label="Número de documento"
                 mask="###.###.###.###.###"
                 reverse-fill-mask
+                unmasked-value
                 maxlength="15"
                 v-model="userData.documentNumber"
+                :rules="[(val) => !!val || 'Este campo es requerido']"
               ></q-input>
               <q-input
                 class="col-12"
                 type="text"
                 mask="phone"
                 label="Teléfono"
+                unmasked-value
                 v-model="userData.phone"
+                :rules="[(val) => !!val || 'Este campo es requerido', (val)=> val.length === 10 || 'Por favor ingrese un número valido']"
               >
                 <template v-slot:prepend>
                   <p class="q-mb-none text-body1">+57</p>
                 </template>
               </q-input>
+              <div>
+                <q-btn color="primary" type="submit" label="Actualizar"></q-btn>
+              </div>
             </q-form>
           </q-card-section>
         </q-card>
@@ -84,10 +97,14 @@ import { getBackgroundColor } from 'src/utils/color';
 import { defineComponent, ref, watch } from 'vue';
 import { DocumentType, UserData } from 'src/models/users';
 import { useStore } from 'src/store';
+import { db } from 'src/boot/firebase';
+import { doc, updateDoc } from 'firebase/firestore';
+import { useQuasar } from 'quasar';
 export default defineComponent({
   setup() {
     const documentTypes = Object.values(DocumentType);
     const store = useStore();
+    const q = useQuasar();
 
     const userData = ref<UserData>({ ...store.state.auth.userData } ?? {});
     watch(
@@ -96,7 +113,31 @@ export default defineComponent({
         userData.value = { ...store.state.auth.userData } ?? {};
       }
     );
-    return { getBackgroundColor, documentTypes, userData };
+
+    function updateUserData(userData: UserData, uid: string) {
+      q.loading.show();
+      updateDoc(doc(db, 'userData', uid), {
+        ...userData,
+      })
+        .then(() => {
+          q.notify({
+            message: 'Usuario actualizado con éxito',
+            type: 'positive',
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+          q.notify({
+            message: 'Ha ocurrido un error. Intente de nuevo',
+            type: 'negative',
+          });
+        })
+        .finally(() => {
+          q.loading.hide();
+        });
+    }
+
+    return { getBackgroundColor, documentTypes, userData, updateUserData };
   },
   computed: {
     currentUser() {
@@ -106,9 +147,4 @@ export default defineComponent({
 });
 </script>
 
-<style lang="sass" scoped>
-.my-content
-  padding: 10px 15px
-  background: rgba(86,61,124,.15)
-  border: 1px solid rgba(86,61,124,.2)
-</style>
+<style lang="sass" scoped></style>

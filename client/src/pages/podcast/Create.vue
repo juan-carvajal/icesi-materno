@@ -3,15 +3,17 @@
     <q-card class="full-width" bordered>
       <q-form @submit.prevent="handleFormSubmit">
         <q-card-section>
-          <div class="text-h6">Nuevo podcast: {{ internalPodcast.title }}</div>
-          <div class="text-subtitle2">by John Doe</div>
+          <div class="text-h6">
+            {{ podcast.ID ? 'Editando Podcast' : 'Nuevo podcast' }}:
+            {{ internalPodcast.title }}
+          </div>
         </q-card-section>
 
         <q-card-section class="row wrap">
           <q-card-section class="col-12 col-sm-6 flex flex-center">
             <q-img
               class="rounded-borders"
-              :src="imageSource"
+              :src="imageSourceComputed"
               ratio="1"
               @click="pickImageFile"
             >
@@ -64,8 +66,13 @@
         <q-separator />
 
         <q-card-actions>
-          <q-btn type="submit" flat color="primary" :disable="!file">
-            Crear
+          <q-btn
+            type="submit"
+            flat
+            color="primary"
+            :disable="!file && !podcast.ID"
+          >
+            {{ podcast.ID ? 'Editar' : 'Crear' }}
           </q-btn>
         </q-card-actions>
       </q-form>
@@ -78,7 +85,11 @@ import { defineComponent, PropType, ref } from 'vue';
 import { Podcast } from 'src/models/podcast';
 import { useDialogPluginComponent, QFile, useQuasar } from 'quasar';
 import { db, storage } from 'boot/firebase';
-import { ref as storageRef, uploadBytes } from 'firebase/storage';
+import {
+  ref as storageRef,
+  uploadBytes,
+  getDownloadURL,
+} from 'firebase/storage';
 import { collection, updateDoc, doc, addDoc } from 'firebase/firestore';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -89,12 +100,23 @@ export default defineComponent({
       required: true,
     },
   },
+  async mounted() {
+    if (this.podcast.imageURL) {
+      this.accessURLToResource = await getDownloadURL(
+        storageRef(storage, this.podcast.imageURL)
+      ).catch((err) => {
+        console.log(err);
+        return '';
+      });
+    }
+  },
   data() {
     return {
       internalPodcast: { ...this.podcast },
       file: null,
       imageFile: null,
       imageSource: '',
+      accessURLToResource: '',
     };
   },
   emits: [
@@ -108,7 +130,7 @@ export default defineComponent({
   methods: {
     async handleFormSubmit() {
       try {
-        if (!this.file) {
+        if (!this.file && !this.internalPodcast.ID) {
           return;
         }
 
@@ -122,11 +144,12 @@ export default defineComponent({
           this.internalPodcast.imageURL = imageURL;
         }
 
-        const fileURL = `podcast/media/${uuidv4()}.mp3`;
-        const fileRef = storageRef(storage, fileURL);
-
-        await uploadBytes(fileRef, this.file);
-        this.internalPodcast.mediaURL = fileURL;
+        if (this.file) {
+          const fileURL = `podcast/media/${uuidv4()}.mp3`;
+          const fileRef = storageRef(storage, fileURL);
+          await uploadBytes(fileRef, this.file);
+          this.internalPodcast.mediaURL = fileURL;
+        }
 
         if (!this.internalPodcast.ID) {
           await addDoc(collection(db, 'podcasts'), this.internalPodcast);
@@ -144,7 +167,7 @@ export default defineComponent({
 
         this.notify({
           type: 'positive',
-          message: 'Podcast creado con éxito',
+          message: 'Podcast editado con éxito',
         });
       } catch (error) {
         console.log(error);
@@ -157,11 +180,13 @@ export default defineComponent({
         this.dialogRef?.hide();
       }
     },
-    handleImageFileRejection(e: Array<{ failedPropValidation: string, file: File } >) {
+    handleImageFileRejection(
+      e: Array<{ failedPropValidation: string; file: File }>
+    ) {
       this.notify({
-          type: 'negative',
-          message: 'Error cambiando imagen: '+e[0].failedPropValidation,
-        });
+        type: 'negative',
+        message: 'Error cambiando imagen: ' + e[0].failedPropValidation,
+      });
     },
     handleImageFileChange(file: File) {
       if (!file) {
@@ -181,7 +206,19 @@ export default defineComponent({
       reader.readAsDataURL(file);
     },
   },
+  computed: {
+    imageSourceComputed() {
+      if (this.imageSource) {
+        return this.imageSource;
+      }
 
+      if (this.accessURLToResource) {
+        return this.accessURLToResource;
+      }
+
+      return '';
+    },
+  },
   setup() {
     const imageFilePickerRef = ref<QFile>();
     const { notify, loading } = useQuasar();
