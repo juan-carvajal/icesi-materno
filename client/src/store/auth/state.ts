@@ -4,6 +4,7 @@ import { UserData } from 'src/models/users';
 export interface AuthStateInterface {
   uid?: string;
   email?: string;
+  isEmailVerified: boolean;
   displayName?: string;
   isLoggedIn: boolean;
   permissions: Array<string>
@@ -11,11 +12,12 @@ export interface AuthStateInterface {
   userData?: UserData
 }
 
-function state(): AuthStateInterface {
+function state (): AuthStateInterface {
   return {
     isLoggedIn: false,
     permissions: [],
-    userData: {}
+    userData: {},
+    isEmailVerified: false
   }
 };
 

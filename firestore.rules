@@ -35,6 +35,11 @@ service cloud.firestore {
       allow write: if checkAuthorization('podcasts.write')
     }
 
+    match /cases/{cases} {
+      allow read: if checkAuthorization('cases.read');
+      allow write: if checkAuthorization('cases.write')
+    }
+
     match /userData/{userUID} {
       allow read: if request.auth != null && request.auth.uid == userUID || checkAuthorization('admin');
       allow write: if request.auth != null && request.auth.uid == userUID || checkAuthorization('admin');

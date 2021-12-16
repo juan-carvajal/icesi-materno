@@ -22,6 +22,7 @@ const routes: RouteRecordRaw[] = [
     ],
   },
   { path: '/login', component: () => import('pages/Login.vue') },
+  { path:  '/verification', component: () => import('pages/user/Verification.vue') , meta: {requiresAuth: true}},
   {
     path: '/admin',
     component: () => import('layouts/MainLayout.vue'),

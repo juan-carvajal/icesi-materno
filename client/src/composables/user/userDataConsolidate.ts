@@ -16,6 +16,7 @@ export default function useUserFullInformation (user: Ref<User | undefined>) {
     if (!user.value) {
       return {
         isLoggedIn: false,
+        isEmailVerified: false,
         permissions: [],
         userData: {}
       } as AuthStateInterface
@@ -36,7 +37,8 @@ export default function useUserFullInformation (user: Ref<User | undefined>) {
       isLoggedIn: true,
       permissions,
       roleName,
-      userData: userData.value
+      userData: userData.value,
+      isEmailVerified: user.value.emailVerified
     } as AuthStateInterface
 
   })

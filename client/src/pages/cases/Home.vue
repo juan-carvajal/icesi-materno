@@ -10,6 +10,7 @@
     </q-toolbar>
 
     <div class="row q-gutter-sm col-grow">
+      <q-linear-progress query v-if="isLoading" />
       <q-card
         class="col bg-grey-2"
         flat
@@ -24,10 +25,20 @@
 
         <q-separator></q-separator>
 
-        <q-card-section class="column q-gutter-y-sm q-pa-sm">
-          <case-card v-for="i in Math.round(Math.random()*10)" :key="i" :caseProp="testCase"></case-card>
-          <case-card :caseProp="testCase"></case-card>
-        </q-card-section>
+        <draggable
+          :list="filteredCases(caseState)"
+          class="column q-gutter-y-sm q-pa-sm"
+          tag="div"
+          :key="`column-${caseState}`"
+          :group="{ name: caseState, pull: true, put: true }"
+          item-key="ID"
+          :animation="120"
+          @change="(e) => checkAdd(e, caseState)"
+        >
+          <template #item="{ element }">
+            <case-card class="cursor-pointer" :caseProp="element"></case-card>
+          </template>
+        </draggable>
       </q-card>
     </div>
   </q-page>
@@ -41,13 +52,36 @@ import {
   CaseState,
   CasePriority,
 } from 'components/cases/models';
+
 import CaseCard from 'components/cases/CaseCard.vue';
+import useCasesRepositories, {
+  CaseTypeCategory,
+} from 'src/composables/cases/caseRepositories';
+import draggable from 'vuedraggable';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from 'boot/firebase';
+
+interface DragEventInput {
+  added?: { element: Case };
+  moved?: { element: Case };
+  removed?: { element: Case };
+}
+
 export default defineComponent({
   components: {
     CaseCard,
+    draggable,
   },
   setup() {
     const caseStates = ref(Object.values(CaseState));
+
+    const caseTypeCategory = ref(CaseTypeCategory.ACTIVE);
+    const selectedEmails = ref<Array<string>>([]);
+
+    const { cases, isLoading } = useCasesRepositories(
+      selectedEmails,
+      caseTypeCategory
+    );
 
     const testCase: Case = {
       ID: '1',
@@ -57,17 +91,42 @@ export default defineComponent({
       created: new Date(),
       lastUpdateState: new Date(),
       assignee: {
-        email: 'egeffffg',
-        uid: 'fff',
+        email: 'juan030698@hotmail.com',
+        uid: 'SlKD0KWLhIQTSSyt4tWGx42IqiG3',
       },
       reported: {
-        email: 'egeg',
-        uid: 'fff',
+        email: 'juan030698@hotmail.com',
+        uid: 'SlKD0KWLhIQTSSyt4tWGx42IqiG3',
       },
       priority: CasePriority.HIGH,
     };
 
-    return { caseStates, testCase };
+    function filteredCases(type: CaseState) {
+      return JSON.parse(
+        JSON.stringify(cases.value.filter((i) => i.state === type))
+      ) as Array<Case>;
+    }
+
+    function checkAdd(event: DragEventInput, caseState: CaseState) {
+      if (!event.added) {
+        return;
+      }
+
+      void updateDoc(doc(db, 'cases', event.added.element.ID), {
+        state: caseState,
+      }).catch((err) => {
+        console.log(err);
+      });
+    }
+
+    return {
+      caseStates,
+      testCase,
+      isLoading,
+      cases,
+      filteredCases,
+      checkAdd,
+    };
   },
 });
 </script>

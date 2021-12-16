@@ -21,8 +21,8 @@ export default route<StateInterface>(function (/* { store, ssrContext } */ store
   const createHistory = process.env.SERVER
     ? createMemoryHistory
     : process.env.VUE_ROUTER_MODE === 'history'
-    ? createWebHistory
-    : createWebHashHistory;
+      ? createWebHistory
+      : createWebHashHistory;
 
   const Router = createRouter({
     scrollBehavior: () => ({ left: 0, top: 0 }),
@@ -40,15 +40,24 @@ export default route<StateInterface>(function (/* { store, ssrContext } */ store
 
     const isLoggedIn = store.store.state.auth.isLoggedIn
     const requiredAuth = to.meta.requiresAuth as boolean
+    const isEmailVerified = store.store.state.auth.isEmailVerified
 
-    if(requiredAuth && !isLoggedIn){
+    if (requiredAuth && !isLoggedIn) {
       next({ path: '/login', query: { redirect: to.path } })
       return
     }
 
+    if (isLoggedIn && !isEmailVerified) {
+      if (to.path === '/verification') {
+        next()
+        return
+      }
+
+      next({ path: '/verification' })
+      return
+    }
+
     next()
-
-
   });
 
   return Router;

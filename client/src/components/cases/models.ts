@@ -28,7 +28,7 @@ export interface Case {
   state: CaseState,
   created: Date,
   lastUpdateState: Date,
-  assignee: CaseUser,
+  readonly assignee: CaseUser,
   reported: CaseUser,
   priority: CasePriority
 }
