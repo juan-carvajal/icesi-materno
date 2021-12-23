@@ -17,18 +17,20 @@ export enum CasePriority {
 }
 
 export interface CaseUser {
-  email: string,
-  uid: string
+  email?: string,
+  uid?: string
 }
 
 export interface Case {
-  ID: string,
+  ID?: string,
   title: string,
+  description?: string,
   type: CaseType,
   state: CaseState,
   created: Date,
   lastUpdateState: Date,
-  readonly assignee: CaseUser,
-  reported: CaseUser,
-  priority: CasePriority
+  assignee?: CaseUser,
+  readonly reported: CaseUser,
+  priority: CasePriority,
+  patient?: CaseUser
 }

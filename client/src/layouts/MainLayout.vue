@@ -10,6 +10,9 @@
           aria-label="Menu"
           @click="toggleLeftDrawer"
         />
+        <q-avatar square
+          ><q-img src="~assets/icons/app-logo.ico"></q-img
+        ></q-avatar>
 
         <q-toolbar-title> ConectaDos </q-toolbar-title>
 
@@ -21,11 +24,7 @@
           >{{ ($store.state.auth.email ?? 'A').toUpperCase()[0] }}
           <q-menu>
             <q-list style="min-width: 100px">
-              <q-item dense
-                clickable
-                v-close-popup
-                to="profile"
-                >
+              <q-item dense clickable v-close-popup to="profile">
                 <q-item-section>Mi perfil</q-item-section>
               </q-item>
               <q-item
@@ -46,14 +45,22 @@
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-model="leftDrawerOpen" show-if-above
-        :width="200"
-        :breakpoint="500"
-        bordered>
+    <q-drawer
+      v-model="leftDrawerOpen"
+      show-if-above
+      :width="200"
+      :breakpoint="500"
+      bordered
+    >
       <q-scroll-area class="fit">
         <q-list>
           <template v-for="(menuItem, index) in menuList" :key="index">
-            <q-item :to="menuItem.to" clickable :active="menuItem.to === $route.path" v-ripple>
+            <q-item
+              :to="menuItem.to"
+              clickable
+              :active="menuItem.to === $route.path"
+              v-ripple
+            >
               <q-item-section avatar>
                 <q-icon :name="menuItem.icon" />
               </q-item-section>
@@ -83,14 +90,14 @@ const menuList = [
     icon: 'cases',
     label: 'Casos',
     separator: true,
-    to: '/cases'
+    to: '/cases',
   },
   {
     icon: 'podcasts',
     label: 'Podcasts',
     separator: false,
-    to: '/podcast'
-  }
+    to: '/podcast',
+  },
 ];
 
 import { defineComponent, ref } from 'vue';

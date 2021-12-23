@@ -1,9 +1,7 @@
 <template>
   <div class="bg-primary fullscreen row justify-center items-center">
-    <div class="column">
-      <div class="row items-center justify-center">
-        <h5 class="text-h5 text-center text-white q-my-md">ConectaDos</h5>
-      </div>
+    <div class="column q-pa-sm">
+      <q-img src="~assets/icons/app-logo.svg"></q-img>
       <div class="row">
         <q-form @submit.prevent="logInUser">
           <q-card bordered class="q-pa-lg q-ma-lg shadow-1">
@@ -66,7 +64,7 @@ export default defineComponent({
     const store = useStore(storeKey);
 
     const isLoading = ref(false);
-    const isLoggedIn = computed(() => store.state.auth.isLoggedIn)
+    const isLoggedIn = computed(() => store.state.auth.isLoggedIn);
 
     return { isLoggedIn, isLoading };
   },

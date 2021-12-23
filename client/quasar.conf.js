@@ -139,8 +139,8 @@ module.exports = configure(function (ctx) {
       },
 
       manifest: {
-        name: 'ICESI Materno',
-        short_name: 'ICESI Materno',
+        name: 'ConectaDos',
+        short_name: 'ConectaDos',
         description: '',
         display: 'standalone',
         orientation: 'portrait',

@@ -1,10 +1,7 @@
 <template>
   <div class="bg-primary fullscreen row justify-center items-center">
-    <div class="column">
-      <div class="row items-center justify-center">
-        <h5 class="text-h5 text-center text-white q-my-md">ConectaDos</h5>
-      </div>
-
+    <div class="column q-pa-sm">
+      <q-img src="~assets/icons/app-logo.svg"></q-img>
       <q-card>
         <q-card-section class="text-center">
           <p class="text-h6">Gracias por iniciar sesión</p>

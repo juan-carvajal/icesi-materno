@@ -6,7 +6,7 @@
 
       <q-space></q-space>
 
-      <q-btn flat round icon="add"></q-btn>
+      <q-btn flat round icon="add" @click="openDialog"></q-btn>
     </q-toolbar>
 
     <div class="row q-gutter-sm col-grow">
@@ -60,6 +60,9 @@ import useCasesRepositories, {
 import draggable from 'vuedraggable';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from 'boot/firebase';
+import { useQuasar } from 'quasar';
+import { useStore } from 'src/store/index';
+import WriteCaseDialog from 'src/components/cases/WriteCaseDialog.vue';
 
 interface DragEventInput {
   added?: { element: Case };
@@ -73,6 +76,10 @@ export default defineComponent({
     draggable,
   },
   setup() {
+    const $q = useQuasar();
+
+    const store = useStore();
+
     const caseStates = ref(Object.values(CaseState));
 
     const caseTypeCategory = ref(CaseTypeCategory.ACTIVE);
@@ -83,23 +90,27 @@ export default defineComponent({
       caseTypeCategory
     );
 
-    const testCase: Case = {
-      ID: '1',
-      title: 'test test test test test test test test test test',
-      type: CaseType.ADMINISTRATIVE,
-      state: CaseState.TODO,
-      created: new Date(),
-      lastUpdateState: new Date(),
-      assignee: {
-        email: 'juan030698@hotmail.com',
-        uid: 'SlKD0KWLhIQTSSyt4tWGx42IqiG3',
-      },
-      reported: {
-        email: 'juan030698@hotmail.com',
-        uid: 'SlKD0KWLhIQTSSyt4tWGx42IqiG3',
-      },
-      priority: CasePriority.HIGH,
-    };
+    function openDialog() {
+      const newCase: Case = {
+        title: '',
+        type: CaseType.ADMINISTRATIVE,
+        state: CaseState.TODO,
+        created: new Date(),
+        lastUpdateState: new Date(),
+        reported: {
+          email: store.state.auth.email,
+          uid: store.state.auth.uid,
+        },
+        priority: CasePriority.NORMAL,
+      };
+
+      $q.dialog({
+        component: WriteCaseDialog,
+        componentProps: {
+          targetCase: newCase,
+        },
+      });
+    }
 
     function filteredCases(type: CaseState) {
       return JSON.parse(
@@ -112,6 +123,10 @@ export default defineComponent({
         return;
       }
 
+      if (!event?.added?.element?.ID) {
+        return;
+      }
+
       void updateDoc(doc(db, 'cases', event.added.element.ID), {
         state: caseState,
       }).catch((err) => {
@@ -121,11 +136,11 @@ export default defineComponent({
 
     return {
       caseStates,
-      testCase,
       isLoading,
       cases,
       filteredCases,
       checkAdd,
+      openDialog,
     };
   },
 });
