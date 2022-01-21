@@ -6,8 +6,41 @@
 
       <q-space></q-space>
 
-      <q-btn flat round icon="add" @click="openDialog"></q-btn>
+      <q-btn
+        v-if="hasAccess('alerts.write')"
+        flat
+        round
+        icon="add"
+        @click="createNewCase"
+      ></q-btn>
     </q-toolbar>
+
+    <div class="row q-gutter-sm q-mb-sm">
+      <q-select
+        label="Usuarios"
+        v-model="selectedEmails"
+        multiple
+        :options="availableEmails"
+        counter
+        :max-values="10"
+        stack-label
+        dense
+        outlined
+        style="width: 250px"
+        clearable
+      />
+
+      <q-select
+        v-model="caseTypeCategory"
+        :options="caseTypeCategoryOption"
+        stack-label
+        dense
+        outlined
+        emit-value
+        label="Estado"
+      />
+    </div>
+
 
     <div class="row q-gutter-sm col-grow">
       <q-linear-progress query v-if="isLoading" />
@@ -36,7 +69,11 @@
           @change="(e) => checkAdd(e, caseState)"
         >
           <template #item="{ element }">
-            <case-card class="cursor-pointer" :caseProp="element"></case-card>
+            <case-card
+              @click="editCase(element)"
+              class="cursor-pointer"
+              :caseProp="element"
+            ></case-card>
           </template>
         </draggable>
       </q-card>
@@ -45,7 +82,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, inject, Ref, computed } from 'vue';
 import {
   Case,
   CaseType,
@@ -63,6 +100,8 @@ import { db } from 'boot/firebase';
 import { useQuasar } from 'quasar';
 import { useStore } from 'src/store/index';
 import WriteCaseDialog from 'src/components/cases/WriteCaseDialog.vue';
+import { User } from 'firebase/auth';
+import useUserAuthorization from 'src/composables/user/userAuthorization';
 
 interface DragEventInput {
   added?: { element: Case };
@@ -85,12 +124,16 @@ export default defineComponent({
     const caseTypeCategory = ref(CaseTypeCategory.ACTIVE);
     const selectedEmails = ref<Array<string>>([]);
 
+    const currentUser = inject('currentUser') as Ref<User | undefined>;
+
+    const { hasAccess } = useUserAuthorization(currentUser);
+
     const { cases, isLoading } = useCasesRepositories(
       selectedEmails,
       caseTypeCategory
     );
 
-    function openDialog() {
+    function createNewCase() {
       const newCase: Case = {
         title: '',
         type: CaseType.ADMINISTRATIVE,
@@ -104,18 +147,24 @@ export default defineComponent({
         priority: CasePriority.NORMAL,
       };
 
+      openDialog(newCase);
+    }
+
+    function openDialog(targetCase: Case) {
       $q.dialog({
         component: WriteCaseDialog,
         componentProps: {
-          targetCase: newCase,
+          targetCase: targetCase,
         },
       });
     }
 
+    function editCase(targetCase: Case) {
+      openDialog(targetCase);
+    }
+
     function filteredCases(type: CaseState) {
-      return JSON.parse(
-        JSON.stringify(cases.value.filter((i) => i.state === type))
-      ) as Array<Case>;
+      return cases.value.filter((i) => i.state === type);
     }
 
     function checkAdd(event: DragEventInput, caseState: CaseState) {
@@ -134,6 +183,20 @@ export default defineComponent({
       });
     }
 
+    const availableEmails = computed(() => {
+      if (!cases.value) {
+        return [];
+      }
+
+      return Array.from(
+        new Set(
+          cases.value
+            .filter((c) => !!c.assignee?.email)
+            .map((c) => c.assignee?.email ?? '')
+        )
+      );
+    });
+
     return {
       caseStates,
       isLoading,
@@ -141,6 +204,18 @@ export default defineComponent({
       filteredCases,
       checkAdd,
       openDialog,
+      createNewCase,
+      editCase,
+      hasAccess,
+      caseTypeCategoryOption: Object.values(CaseTypeCategory).map((i) => {
+        return {
+          label: i,
+          value: i,
+        };
+      }),
+      caseTypeCategory,
+      availableEmails,
+      selectedEmails,
     };
   },
 });

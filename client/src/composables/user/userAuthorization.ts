@@ -60,8 +60,13 @@ export default function useUserAuthorization (user: Ref<User | undefined>) {
   watch(user, handleUser, { immediate: true })
   watch(userRoleRef, handleRole)
 
+  function hasAccess (permission: string) {
+    return (roleRef.value?.permissions.includes('admin') || roleRef.value?.permissions.includes(permission)) ?? false
+  }
+
 
   return {
     authorization: roleRef,
+    hasAccess
   }
 }

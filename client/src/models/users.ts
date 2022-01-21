@@ -11,4 +11,6 @@ export interface UserData{
   documentNumber?:string,
   firstName?: string,
   lastName?:string
+  email?:string;
+  readonly uid? :string;
 }

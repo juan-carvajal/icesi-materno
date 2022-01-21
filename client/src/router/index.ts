@@ -41,6 +41,17 @@ export default route<StateInterface>(function (/* { store, ssrContext } */ store
     const isLoggedIn = store.store.state.auth.isLoggedIn
     const requiredAuth = to.meta.requiresAuth as boolean
     const isEmailVerified = store.store.state.auth.isEmailVerified
+    const requiredPermissions = to.meta.requiredPermissions as string[]
+
+    if (requiredPermissions && requiredPermissions.length > 0) {
+      const userPermissions = store.store.state.auth.permissions
+
+      const allFullfilled = userPermissions.includes('admin') || requiredPermissions.every(i => userPermissions.includes(i))
+      if (!allFullfilled) {
+        next('/forbidden')
+        return
+      }
+    }
 
     if (requiredAuth && !isLoggedIn) {
       next({ path: '/login', query: { redirect: to.path } })

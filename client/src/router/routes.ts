@@ -4,7 +4,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
-    meta: {requiresAuth: true},
+    meta: { requiresAuth: true },
     children: [
       { path: '', redirect: 'cases' },
       {
@@ -17,21 +17,45 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: 'profile',
-        component: () => import ('pages/Profile.vue')
+        component: () => import('pages/Profile.vue')
       }
     ],
   },
+  {
+    path: '/messages',
+    component: () => import('layouts/SocialLayout.vue'),
+    meta: { requiresAuth: true },
+    children: [
+    ],
+  },
   { path: '/login', component: () => import('pages/Login.vue') },
-  { path:  '/verification', component: () => import('pages/user/Verification.vue') , meta: {requiresAuth: true}},
+  { path: '/verification', component: () => import('pages/user/Verification.vue'), meta: { requiresAuth: true } },
   {
     path: '/admin',
     component: () => import('layouts/MainLayout.vue'),
-    meta: {requiresAuth: true, requiredPermissions: ['admin']},
+    meta: { requiresAuth: true, requiredPermissions: ['admin'] },
+    children: [
+      { path: 'permissions', component: () => import('pages/auth/Permissions.vue') },
+      { path: 'user-roles', component: () => import('pages/auth/UserRoles.vue') },
+    ]
+  },
+  {
+    path: '/alerts',
+    component: () => import('layouts/MainLayout.vue'),
+    meta: { requiresAuth: true, requiredPermissions: ['alerts.read'] },
+    children: [
+      { path: '', component: () => import('pages/alerts/AlertList.vue') },
+      { path: ':alertID', component: () => import('pages/alerts/AlertView.vue'), props: true },
+    ]
   },
   {
     path: '/demo',
     component: () => import('layouts/DemoLayout.vue'),
     children: [{ path: '', component: () => import('pages/DemoPage.vue') }],
+  },
+  {
+    path: '/forbidden',
+    component: () => import('pages/Error403.vue'),
   },
 
   // Always leave this as last one,

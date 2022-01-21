@@ -1,3 +1,5 @@
+import { Timestamp } from 'firebase/firestore';
+
 export enum CaseType {
   MEDICAL = 'Médico',
   ADMINISTRATIVE = 'Administrativo'
@@ -27,8 +29,8 @@ export interface Case {
   description?: string,
   type: CaseType,
   state: CaseState,
-  created: Date,
-  lastUpdateState: Date,
+  created: Date | Timestamp,
+  lastUpdateState: Date | Timestamp,
   assignee?: CaseUser,
   readonly reported: CaseUser,
   priority: CasePriority,

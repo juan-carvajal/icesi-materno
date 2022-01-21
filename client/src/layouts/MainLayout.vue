@@ -16,6 +16,8 @@
 
         <q-toolbar-title> ConectaDos </q-toolbar-title>
 
+        <q-btn to="/messages" icon="inbox" flat></q-btn>
+
         <q-avatar
           :style="{
             backgroundColor: getBackgroundColor($store.state.auth.email ?? ''),
@@ -24,7 +26,7 @@
           >{{ ($store.state.auth.email ?? 'A').toUpperCase()[0] }}
           <q-menu>
             <q-list style="min-width: 100px">
-              <q-item dense clickable v-close-popup to="profile">
+              <q-item dense clickable v-close-popup to="/profile">
                 <q-item-section>Mi perfil</q-item-section>
               </q-item>
               <q-item
@@ -54,6 +56,16 @@
     >
       <q-scroll-area class="fit">
         <q-list>
+          <q-item v-if="hasAccess('alerts.write')">
+            <q-btn
+              color="red"
+              label="Alerta"
+              class="fit"
+              icon="warning"
+              @click="openCreateAlertDialog"
+            ></q-btn>
+          </q-item>
+          <q-separator></q-separator>
           <template v-for="(menuItem, index) in menuList" :key="index">
             <q-item
               :to="menuItem.to"
@@ -76,31 +88,78 @@
 
     <q-page-container>
       <router-view />
+      <q-page-sticky
+        v-if="hasAccess('alerts.write')"
+        position="bottom-right"
+        :offset="[18, 18]"
+      >
+        <q-btn
+          @click="openCreateAlertDialog"
+          fab
+          color="red"
+          round
+          icon="warning"
+        ></q-btn>
+      </q-page-sticky>
     </q-page-container>
   </q-layout>
 </template>
 
 <script lang="ts">
 import { getBackgroundColor } from 'src/utils/color';
-import { signOut } from 'firebase/auth';
+import { signOut, User } from 'firebase/auth';
 import { auth } from 'boot/firebase';
 
-const menuList = [
+interface MenuItem {
+  icon: string;
+  label: string;
+  separator: boolean;
+  to: string;
+  requiredPermissions?: Array<string>;
+}
+
+const menuList: Array<MenuItem> = [
   {
     icon: 'cases',
     label: 'Casos',
     separator: true,
     to: '/cases',
+    requiredPermissions: ['cases.read'],
   },
   {
     icon: 'podcasts',
     label: 'Podcasts',
-    separator: false,
+    separator: true,
     to: '/podcast',
+    requiredPermissions: ['podcasts.read'],
+  },
+  {
+    icon: 'warning',
+    label: 'Alertas',
+    separator: true,
+    to: '/alerts',
+    requiredPermissions: ['alerts.read'],
+  },
+  {
+    icon: 'verified',
+    label: 'Permisos',
+    separator: true,
+    to: '/admin/permissions',
+    requiredPermissions: ['admin'],
+  },
+  {
+    icon: 'supervised_user_circle',
+    label: 'Roles',
+    separator: true,
+    to: '/admin/user-roles',
+    requiredPermissions: ['admin'],
   },
 ];
 
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, inject, Ref, computed } from 'vue';
+import { useQuasar } from 'quasar';
+import CreateAlertDialogVue from 'src/components/alerts/CreateAlertDialog.vue';
+import useUserAuthorization from 'src/composables/user/userAuthorization';
 
 export default defineComponent({
   name: 'MainLayout',
@@ -110,13 +169,33 @@ export default defineComponent({
   setup() {
     const leftDrawerOpen = ref(false);
 
+    const { dialog } = useQuasar();
+
+    function openCreateAlertDialog() {
+      dialog({
+        component: CreateAlertDialogVue,
+      });
+    }
+
+    const currentUser = inject('currentUser') as Ref<User | undefined>;
+
+    const { hasAccess } = useUserAuthorization(currentUser);
+
+    const allowedItems = computed(() => {
+      return menuList.filter((i) =>
+        (i.requiredPermissions ?? []).every((perm) => hasAccess(perm))
+      );
+    });
+
     return {
-      menuList,
+      menuList: allowedItems,
       leftDrawerOpen,
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value;
       },
       getBackgroundColor,
+      openCreateAlertDialog,
+      hasAccess,
     };
   },
   methods: {

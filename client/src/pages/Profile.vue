@@ -75,7 +75,11 @@
                 label="Teléfono"
                 unmasked-value
                 v-model="userData.phone"
-                :rules="[(val) => !!val || 'Este campo es requerido', (val)=> val.length === 10 || 'Por favor ingrese un número valido']"
+                :rules="[
+                  (val) => !!val || 'Este campo es requerido',
+                  (val) =>
+                    val.length === 10 || 'Por favor ingrese un número valido',
+                ]"
               >
                 <template v-slot:prepend>
                   <p class="q-mb-none text-body1">+57</p>
@@ -98,7 +102,7 @@ import { defineComponent, ref, watch } from 'vue';
 import { DocumentType, UserData } from 'src/models/users';
 import { useStore } from 'src/store';
 import { db } from 'src/boot/firebase';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { useQuasar } from 'quasar';
 export default defineComponent({
   setup() {
@@ -116,9 +120,13 @@ export default defineComponent({
 
     function updateUserData(userData: UserData, uid: string) {
       q.loading.show();
-      updateDoc(doc(db, 'userData', uid), {
-        ...userData,
-      })
+      setDoc(
+        doc(db, 'userData', uid),
+        {
+          ...userData,
+        },
+        { merge: true }
+      )
         .then(() => {
           q.notify({
             message: 'Usuario actualizado con éxito',

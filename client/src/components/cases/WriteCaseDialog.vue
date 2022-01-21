@@ -1,5 +1,10 @@
 <template>
-  <q-dialog ref="dialogRef" @hide="onDialogHide">
+  <q-dialog
+    ref="dialogRef"
+    @hide="onDialogHide"
+    :full-height="!!caseState.ID"
+    :full-width="!!caseState.ID"
+  >
     <q-card class="full-width" bordered>
       <q-card-section>
         <div class="text-h6 ellipsis">
@@ -79,15 +84,34 @@
         </q-card-section>
         <q-separator></q-separator>
         <q-card-actions align="right">
+          <template v-if="caseState.ID && hasAccess('alerts.write')">
+            <q-btn
+              label="Alerta"
+              @click="createAlertDialog(caseState.ID)"
+              color="negative"
+              icon="warning"
+              :disable="!caseState.ID"
+            ></q-btn>
+
+            <q-space></q-space>
+          </template>
           <q-btn
             color="negative"
             @click="onCancelClick"
             flat
             label="Cancelar"
           />
-          <q-btn color="primary" type="submit" label="Crear" />
+          <q-btn
+            color="primary"
+            type="submit"
+            :label="caseState.ID ? 'Actualizar' : 'Crear'"
+          />
         </q-card-actions>
       </q-form>
+      <template v-if="targetCase.ID">
+        <q-separator></q-separator>
+        <case-tabs-vue :caseID="targetCase.ID"></case-tabs-vue>
+      </template>
     </q-card>
   </q-dialog>
 </template>
@@ -97,15 +121,21 @@ import { useDialogPluginComponent, useQuasar } from 'quasar';
 import { defineComponent, PropType, computed, ref, toRefs } from 'vue';
 import { Case, CaseType, CasePriority, CaseState, CaseUser } from './models';
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, doc } from 'firebase/firestore';
 import { db } from 'boot/firebase';
-
+import CreateAlertDialogVue from '../alerts/CreateAlertDialog.vue';
+import CaseTabsVue from './CaseTabs.vue';
+import useUserAuthorization from 'src/composables/user/userAuthorization';
+import { useCurrentUser } from 'src/composables/auth/rolePermissions';
 export default defineComponent({
   props: {
     targetCase: {
       type: Object as PropType<Case>,
       required: true,
     },
+  },
+  components: {
+    CaseTabsVue,
   },
   emits: [...useDialogPluginComponent.emits],
   setup(props) {
@@ -114,7 +144,11 @@ export default defineComponent({
     const assigneeOptions = ref<Array<CaseUser>>([]);
     const { targetCase } = toRefs(props);
     const caseState = ref(targetCase.value);
-    const { notify, loading } = useQuasar();
+    const { notify, loading, dialog } = useQuasar();
+
+    const { currentUser } = useCurrentUser();
+
+    const { hasAccess } = useUserAuthorization(currentUser);
 
     const functions = getFunctions();
     const getAssignees = httpsCallable<Record<string, never>, Array<CaseUser>>(
@@ -124,6 +158,19 @@ export default defineComponent({
 
     const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } =
       useDialogPluginComponent();
+
+    function createAlertDialog(caseID?: string) {
+      if (!caseID) {
+        return;
+      }
+
+      dialog({
+        component: CreateAlertDialogVue,
+        componentProps: {
+          relatedCaseID: caseID,
+        },
+      });
+    }
 
     function getCasePriorityProps(casePriority: CasePriority) {
       switch (casePriority) {
@@ -181,12 +228,37 @@ export default defineComponent({
         });
     };
 
+    const updateCase = () => {
+      if (!caseState.value?.ID) {
+        return Promise.resolve();
+      }
+
+      return updateDoc(doc(db, `cases/${caseState.value.ID}`), caseState.value)
+        .then(() => {
+          notify({
+            type: 'positive',
+            message: 'Caso actualizado con éxito',
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+          notify({
+            type: 'negative',
+            message: 'Error actualizado caso.',
+          });
+        });
+    };
+
     return {
       dialogRef,
+      hasAccess,
       onDialogHide,
       onOKClick() {
         loading.show();
-        createCase().finally(() => {
+
+        const promise = caseState.value.ID ? updateCase() : createCase();
+
+        promise.finally(() => {
           loading.hide();
           onDialogOK();
         });
@@ -198,6 +270,7 @@ export default defineComponent({
       casePriorities,
       getCasePriorityProps,
       assigneeOptions,
+      createAlertDialog,
       filterFn(val: unknown, update: () => void) {
         if (assigneeOptions.value.length !== 0) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-call

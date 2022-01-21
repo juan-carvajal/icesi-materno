@@ -1,8 +1,9 @@
 import * as functions from 'firebase-functions';
 import * as twilio from './handlers/twilio'
 import * as users from './handlers/user'
+import * as adminFunctions from './handlers/admin'
 import * as admin from 'firebase-admin'
-
+import * as triggers from './triggers'
 
 admin.initializeApp()
 
@@ -19,3 +20,7 @@ export const helloWorld = functions.https.onRequest((request, response) => {
 
 exports.twilio = twilio
 exports.users = users
+exports.admin = adminFunctions
+
+
+exports.triggers = triggers

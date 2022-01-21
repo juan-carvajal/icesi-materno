@@ -2,7 +2,7 @@
   <router-view />
 </template>
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, provide } from 'vue';
 import useUserFullInformation from 'src/composables/user/userDataConsolidate';
 import { getAuth, User } from 'firebase/auth';
 
@@ -15,6 +15,8 @@ export default defineComponent({
     auth.onAuthStateChanged((user) => {
       currentUser.value = user ?? undefined;
     });
+
+    provide('currentUser', currentUser);
 
     useUserFullInformation(currentUser);
   },

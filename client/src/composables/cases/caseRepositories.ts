@@ -1,5 +1,5 @@
 import { ref, watch, Ref } from 'vue';
-import { collection, query, onSnapshot, where, Unsubscribe } from 'firebase/firestore';
+import { collection, query, onSnapshot, where, Unsubscribe, QueryConstraint, orderBy } from 'firebase/firestore';
 import { db } from 'boot/firebase';
 
 import { Case, CaseState } from 'src/components/cases/models';
@@ -10,7 +10,7 @@ export enum CaseTypeCategory {
   ARCHIVED = 'Archivados'
 }
 
-export default function useCasesRepositories (selectedEmails: Ref<string[]>, caseType: Ref<CaseTypeCategory>) {
+export default function useCasesRepositories (selectedEmails: Ref<string[] | null | undefined>, caseType: Ref<CaseTypeCategory>) {
 
   const cases = ref<Case[]>([]);
   const casesUnsubscribe = ref<Unsubscribe>()
@@ -24,8 +24,21 @@ export default function useCasesRepositories (selectedEmails: Ref<string[]>, cas
 
     isLoading.value = true
 
-    const caseTypeWhere = where('state', caseType.value === CaseTypeCategory.ACTIVE ? '!=' : '==', CaseState.RESOLVED)
-    const q = selectedEmails.value.length > 0 ? query(collection(db, 'cases'), where('assignee.email', 'in', selectedEmails.value.slice(0, 10)), caseTypeWhere) : query(collection(db, 'cases'), caseTypeWhere);
+    const constraints: QueryConstraint[] = []
+    if (selectedEmails.value && selectedEmails.value.length > 0) {
+      constraints.push(where('assignee.email', 'in', selectedEmails.value.slice(0, 10)))
+    }
+
+
+    constraints.push(where('state', caseType.value === CaseTypeCategory.ACTIVE ? '!=' : '==', CaseState.RESOLVED))
+
+    if (caseType.value === CaseTypeCategory.ACTIVE) {
+      constraints.push(orderBy('state', 'asc'))
+    }
+
+    constraints.push(orderBy('lastUpdateState', 'asc'))
+
+    const q = query(collection(db, 'cases'), ...constraints)
     casesUnsubscribe.value = onSnapshot(q, (querySnapshot) => {
       cases.value = [] as Array<Case>;
       querySnapshot.forEach((doc) => {

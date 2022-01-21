@@ -6,6 +6,7 @@ import { getPerformance } from 'firebase/performance';
 import {
   getFirestore,
   connectFirestoreEmulator,
+  initializeFirestore
 } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
@@ -28,6 +29,9 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+initializeFirestore(app, {
+  ignoreUndefinedProperties: true
+});
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const perf = getPerformance(app);

@@ -6,7 +6,13 @@
 
       <q-space></q-space>
 
-      <q-btn @click="openDialog" flat round icon="add"></q-btn>
+      <q-btn
+        @click="openDialog"
+        flat
+        round
+        icon="add"
+        v-if="hasAccess('podcasts.write')"
+      ></q-btn>
     </q-toolbar>
 
     <q-input v-model="search" filled type="search">
@@ -31,13 +37,15 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { defineComponent, ref, inject, Ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { Podcast } from 'src/models/podcast';
 import CreateDialog from './Create.vue';
 import usePodcastRepositories from 'src/composables/podcast/podcastRepositories';
 import PodcastLine from 'components/podcast/PodcastLine.vue';
 import PodcastPlayer from 'components/podcast/PodcastPlayer.vue';
+import { User } from 'firebase/auth';
+import useUserAuthorization from 'src/composables/user/userAuthorization';
 export default defineComponent({
   components: {
     PodcastLine,
@@ -45,6 +53,10 @@ export default defineComponent({
   },
   setup() {
     const $q = useQuasar();
+
+    const currentUser = inject('currentUser') as Ref<User | undefined>;
+
+    const { hasAccess } = useUserAuthorization(currentUser);
 
     const audioRef = ref<HTMLAudioElement>();
 
@@ -72,6 +84,7 @@ export default defineComponent({
       podcasts,
       audioRef,
       selectedPodcast,
+      hasAccess,
     };
   },
   methods: {

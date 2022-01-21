@@ -50,7 +50,10 @@ module.exports = configure(function (ctx) {
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-build
     build: {
       vueRouterMode: 'hash', // available values: 'hash', 'history'
-
+      env: {
+        ALGOLIA_APP_ID: 'WINEUDJGO6',
+        ALGOLIA_SEARCH_API_KEY: 'cbf5f5501b2bc512061daf63c548d470'
+      },
       // transpile: false,
       // publicPath: '/',
 
@@ -84,7 +87,9 @@ module.exports = configure(function (ctx) {
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
     framework: {
-      config: {},
+      config: {
+        dark: false
+      },
 
       // iconSet: 'material-icons', // Quasar icon set
       // lang: 'en-US', // Quasar language pack

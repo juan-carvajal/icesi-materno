@@ -1,7 +1,11 @@
 <template>
-  <q-card style="max-width:100%;">
+  <q-card style="max-width: 100%">
     <q-card-section class="q-pa-sm">
-      <p class="q-mb-none ellipsis-3-lines">{{ caseProp.title }}</p>
+      <div class="column">
+        <p class="q-mb-none ellipsis-3-lines">{{ caseProp.title }}</p>
+        <p class="text-caption">Aquí {{getTimeIntervalRaw(handleFirebaseDate(caseProp.lastUpdateState))}}</p>
+      </div>
+
       <q-badge
         text-color="black"
         :style="{ backgroundColor: getBackgroundColor(caseProp.type) }"
@@ -17,13 +21,14 @@
 
         <q-avatar
           size="xs"
+          v-if="caseProp.assignee"
           :style="{
-            backgroundColor: getBackgroundColor(caseProp.assignee.email),
+            backgroundColor: getBackgroundColor(
+              caseProp?.assignee?.email ?? ''
+            ),
           }"
-          >{{ caseProp.assignee.email[0].toUpperCase() }}
-          <q-tooltip>
-            Asignado a: {{ caseProp.assignee.email }}
-          </q-tooltip>
+          >{{ caseProp?.assignee?.email?.charAt(0)?.toUpperCase() }}
+          <q-tooltip> Asignado a: {{ caseProp.assignee.email }} </q-tooltip>
         </q-avatar>
       </div>
     </q-card-section>
@@ -34,6 +39,7 @@
 import { Case, CasePriority } from './models';
 import { PropType, defineComponent } from 'vue';
 import { getBackgroundColor } from 'src/utils/color';
+import { handleFirebaseDate, getTimeIntervalRaw } from 'src/utils/date';
 export default defineComponent({
   props: {
     caseProp: {
@@ -47,7 +53,7 @@ export default defineComponent({
     };
   },
   setup() {
-    return { getBackgroundColor };
+    return { getBackgroundColor, handleFirebaseDate, getTimeIntervalRaw };
   },
   computed: {
     casePriorityProps() {
@@ -74,6 +80,4 @@ export default defineComponent({
 });
 </script>
 
-<style lang="scss" scoped>
-
-</style>
+<style lang="scss" scoped></style>
