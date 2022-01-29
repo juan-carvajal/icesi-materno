@@ -2,9 +2,10 @@ import { ref, watch, Ref } from 'vue';
 import { onSnapshot, Unsubscribe, doc } from 'firebase/firestore';
 import { db } from 'boot/firebase';
 import { User } from 'firebase/auth';
+import { Role } from 'src/models/auth';
 
 export default function useUserAuthorization (user: Ref<User | undefined>) {
-  const roleRef = ref<{ permissions: Array<string>, name: string }>()
+  const roleRef = ref<Role>()
   const userRoleRef = ref<{ roleID: string }>()
   const userRoleUnsubscribeRef = ref<Unsubscribe>()
   const roleUnsubscribeRef = ref<Unsubscribe>()
@@ -44,7 +45,7 @@ export default function useUserAuthorization (user: Ref<User | undefined>) {
         return
       }
 
-      roleRef.value = snapshot.data() as { permissions: Array<string>, name: string }
+      roleRef.value = snapshot.data() as Role
     })
 
   }

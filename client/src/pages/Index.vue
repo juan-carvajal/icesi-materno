@@ -1,74 +1,47 @@
 <template>
-  <q-page class="row items-center justify-evenly">
-    <example-component
-      title="Example component"
-      active
-      :todos="todos"
-      :meta="meta"
-    ></example-component>
-    {{env}}
-    {{authState}}
-    <q-btn @click="logIn" label="Test"></q-btn>
-    <q-btn @click="printStore" label="Test2"></q-btn>
+  <q-page class="column items-center q-ma-md">
+    <div class="row">
+      <p class="text-primary text-h3 text-center">
+        Bienvenido a <span class="text-bold text-secondary">ConectaDos</span>
+      </p>
+    </div>
+    <q-separator></q-separator>
+    <div class="row q-col-gutter-sm full-width">
+      <div v-for="(item, idx) in allowedItems" :key="idx" class="col-6 col-sm-3">
+        <q-card class="fit">
+          <q-card-section class="row q-gutter-x-sm">
+            <div><q-icon :name="item.icon"></q-icon></div>
+            <p class="q-mb-none ellipsis">{{ item.label }}</p></q-card-section
+          >
+          <q-card-actions align="right">
+            <q-btn icon="logout" :to="item.to" flat></q-btn>
+          </q-card-actions>
+        </q-card>
+      </div>
+    </div>
   </q-page>
 </template>
 
 <script lang="ts">
-import { Todo, Meta } from 'components/models';
-import ExampleComponent from 'components/CompositionComponent.vue';
-import { defineComponent, ref } from 'vue';
-import {useStore} from 'src/store'
-import {auth} from 'src/boot/firebase'
-import { createUserWithEmailAndPassword } from '@firebase/auth';
-
-const env = process.env.NODE_ENV
+import { defineComponent, computed, inject, Ref } from 'vue';
+import { menuList } from 'src/utils/items';
+import useUserAuthorization from 'src/composables/user/userAuthorization';
+import { User } from 'firebase/auth';
 
 export default defineComponent({
   name: 'PageIndex',
-  components: { ExampleComponent },
   setup() {
-    const todos = ref<Todo[]>([
-      {
-        id: 1,
-        content: 'ct1'
-      },
-      {
-        id: 2,
-        content: 'ct2'
-      },
-      {
-        id: 3,
-        content: 'ct3'
-      },
-      {
-        id: 4,
-        content: 'ct4'
-      },
-      {
-        id: 5,
-        content: 'ct5'
-      }
-    ]);
+    const currentUser = inject('currentUser') as Ref<User | undefined>;
 
+    const { hasAccess } = useUserAuthorization(currentUser);
 
-    function logIn(){
-      createUserWithEmailAndPassword(auth,'juan030698@hotmail.com','12345678').then((resp)=>{
-        console.log(resp.user)
-      }).catch(error => {
-        console.log(error)
-      })
-    }
-
-    function printStore(){
-      console.log(authState)
-    }
-
-    const meta = ref<Meta>({
-      totalCount: 1200
+    const allowedItems = computed(() => {
+      return menuList.filter((i) =>
+        (i.requiredPermissions ?? []).every((perm) => hasAccess(perm))
+      );
     });
-    const store = useStore()
-    const authState = store.state.auth
-    return { todos, meta, env, authState, logIn, printStore };
-  }
+
+    return { allowedItems };
+  },
 });
 </script>

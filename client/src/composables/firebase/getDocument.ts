@@ -28,7 +28,7 @@ export function GetDocument<T> (collectionID: Ref<string | undefined>, docID: Re
         return
       }
 
-      docData.value = { ...snapshot.data() as T, id: snapshot.id }
+      docData.value = { ...snapshot.data() as T, id: snapshot.id, ID: snapshot.id }
     }, (err) => {
       console.log(err)
       error.value = err

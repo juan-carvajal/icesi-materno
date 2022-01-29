@@ -33,7 +33,7 @@
           <q-separator> </q-separator>
           <q-card-section>
             <q-form
-              @submit.prevent="updateUserData(userData, currentUser?.uid ?? '')"
+              @submit.prevent="updateUserData(userData, currentUser?.uid ?? '', currentUser?.email ?? '')"
               class="row q-col-gutter-sm"
             >
               <q-input
@@ -118,12 +118,13 @@ export default defineComponent({
       }
     );
 
-    function updateUserData(userData: UserData, uid: string) {
+    function updateUserData(userData: UserData, uid: string, email: string) {
       q.loading.show();
       setDoc(
         doc(db, 'userData', uid),
         {
           ...userData,
+          email
         },
         { merge: true }
       )

@@ -5,7 +5,7 @@ import { Role, UserRole } from 'src/models/auth';
 import { getAuth, User } from 'firebase/auth';
 
 export function useRole (roleID: Ref<string>) {
-  const roleRef = ref<{ permissions: Array<string>, name: string }>()
+  const roleRef = ref<Role>()
   const roleUnsubscribeRef = ref<Unsubscribe>()
 
   const handleRole = () => {
@@ -25,7 +25,7 @@ export function useRole (roleID: Ref<string>) {
         return
       }
 
-      roleRef.value = snapshot.data() as { permissions: Array<string>, name: string }
+      roleRef.value = snapshot.data() as Role
     })
 
   }

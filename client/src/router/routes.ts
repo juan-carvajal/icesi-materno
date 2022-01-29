@@ -6,7 +6,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('layouts/MainLayout.vue'),
     meta: { requiresAuth: true },
     children: [
-      { path: '', redirect: 'cases' },
+      { path: '', component: () => import('pages/Index.vue'), },
       {
         path: 'podcast',
         component: () => import('pages/podcast/Home.vue'),
@@ -46,6 +46,14 @@ const routes: RouteRecordRaw[] = [
     children: [
       { path: '', component: () => import('pages/alerts/AlertList.vue') },
       { path: ':alertID', component: () => import('pages/alerts/AlertView.vue'), props: true },
+    ]
+  },
+  {
+    path: '/register-user',
+    component: () => import('layouts/MainLayout.vue'),
+    meta: { requiresAuth: true, requiredPermissions: ['users.write'] },
+    children: [
+      { path: '', component: () => import('pages/registerUsers/RegisterUser.vue') },
     ]
   },
   {

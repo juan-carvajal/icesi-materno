@@ -12,22 +12,32 @@ export const GetUserPermissions = async (uid: string) => {
   })
 
   if (!roleID) {
-    return []
+    return {
+      permissions: [],
+      allowedRoleIdsForCreation: [],
+    }
   }
 
   return firestore.collection('roles').doc(roleID).get().then(snapshop => {
     if (!snapshop.exists) {
-      return []
+      return {
+        permissions: [],
+        allowedRoleIdsForCreation: [],
+      }
     }
 
-    return (snapshop.data()?.permissions ?? []) as Array<string>
+    //return (snapshop.data()?.permissions ?? []) as Array<string>
 
+    return {
+      permissions: (snapshop.data()?.permissions ?? []) as Array<string>,
+      allowedRoleIdsForCreation: (snapshop.data()?.allowedRoleIdsForCreation ?? []) as Array<string>,
+    }
   })
 }
 
 export const IsAdmin = async (uid: string) => {
   return GetUserPermissions(uid).then(permissions => {
-    return permissions.includes('admin')
+    return permissions.permissions.includes('admin')
   })
 }
 

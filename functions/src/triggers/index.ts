@@ -3,11 +3,14 @@ import * as admin from 'firebase-admin'
 import { diff } from "../services/utils";
 
 
-exports.updateDisplayName = functions.firestore.document('userData/{uid}').onUpdate((change, context) => {
+exports.updateUserData = functions.firestore.document('userData/{uid}').onWrite(async (change, context) => {
+  if (!change.after.data()) {
+    return
+  }
 
-  const { firstName, lastName }: { firstName?: string, lastName?: string } = change.after.data()
+  const { firstName, lastName, email }: { firstName?: string, lastName?: string, email?: string } = change.after.data() as FirebaseFirestore.DocumentData
 
-  const newDisplayName = `${firstName ?? ''} ${lastName ?? ''}`
+
 
   const uid: string = context.params.uid
 
@@ -16,9 +19,22 @@ exports.updateDisplayName = functions.firestore.document('userData/{uid}').onUpd
   }
 
   if (process.env.FUNCTIONS_EMULATOR) {
-    console.log('dummy activation on dev environment', newDisplayName)
+    console.log('dummy activation on dev environment')
     return
   }
+
+  await admin.firestore().collection('userSearch').doc(uid).set({
+    firstName,
+    lastName,
+    email,
+    uid
+  })
+
+  if (!firstName || !lastName) {
+    return
+  }
+
+  const newDisplayName = `${firstName ?? ''} ${lastName ?? ''}`
 
   return admin.auth().updateUser(uid, {
     displayName: newDisplayName

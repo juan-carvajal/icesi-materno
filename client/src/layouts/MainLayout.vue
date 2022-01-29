@@ -110,56 +110,11 @@ import { getBackgroundColor } from 'src/utils/color';
 import { signOut, User } from 'firebase/auth';
 import { auth } from 'boot/firebase';
 
-interface MenuItem {
-  icon: string;
-  label: string;
-  separator: boolean;
-  to: string;
-  requiredPermissions?: Array<string>;
-}
-
-const menuList: Array<MenuItem> = [
-  {
-    icon: 'cases',
-    label: 'Casos',
-    separator: true,
-    to: '/cases',
-    requiredPermissions: ['cases.read'],
-  },
-  {
-    icon: 'podcasts',
-    label: 'Podcasts',
-    separator: true,
-    to: '/podcast',
-    requiredPermissions: ['podcasts.read'],
-  },
-  {
-    icon: 'warning',
-    label: 'Alertas',
-    separator: true,
-    to: '/alerts',
-    requiredPermissions: ['alerts.read'],
-  },
-  {
-    icon: 'verified',
-    label: 'Permisos',
-    separator: true,
-    to: '/admin/permissions',
-    requiredPermissions: ['admin'],
-  },
-  {
-    icon: 'supervised_user_circle',
-    label: 'Roles',
-    separator: true,
-    to: '/admin/user-roles',
-    requiredPermissions: ['admin'],
-  },
-];
-
 import { defineComponent, ref, inject, Ref, computed } from 'vue';
 import { useQuasar } from 'quasar';
 import CreateAlertDialogVue from 'src/components/alerts/CreateAlertDialog.vue';
 import useUserAuthorization from 'src/composables/user/userAuthorization';
+import { menuList } from 'src/utils/items';
 
 export default defineComponent({
   name: 'MainLayout',

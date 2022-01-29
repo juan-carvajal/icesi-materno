@@ -17,7 +17,7 @@
 
     <div class="row q-gutter-sm q-mb-sm">
       <q-select
-        label="Usuarios"
+        label="Responsable"
         v-model="selectedEmails"
         multiple
         :options="availableEmails"
@@ -40,7 +40,6 @@
         label="Estado"
       />
     </div>
-
 
     <div class="row q-gutter-sm col-grow">
       <q-linear-progress query v-if="isLoading" />
@@ -82,7 +81,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, inject, Ref, computed } from 'vue';
+import { defineComponent, ref, inject, Ref, computed, watch } from 'vue';
 import {
   Case,
   CaseType,
@@ -183,18 +182,39 @@ export default defineComponent({
       });
     }
 
+    watch(selectedEmails, () => {
+      if (!selectedEmails.value) {
+        return;
+      }
+
+      if (
+        selectedEmails.value.includes('Sin asignar') &&
+        selectedEmails.value.length > 1
+      ) {
+        selectedEmails.value = ['Sin asignar'];
+      }
+    });
+
     const availableEmails = computed(() => {
       if (!cases.value) {
         return [];
       }
 
-      return Array.from(
+      if (selectedEmails.value && selectedEmails.value.includes('Sin asignar')) {
+        return ['Sin asignar'];
+      }
+
+      const emails = Array.from(
         new Set(
           cases.value
             .filter((c) => !!c.assignee?.email)
             .map((c) => c.assignee?.email ?? '')
         )
       );
+
+      emails.push('Sin asignar');
+
+      return emails;
     });
 
     return {

@@ -26,7 +26,16 @@ export default function useCasesRepositories (selectedEmails: Ref<string[] | nul
 
     const constraints: QueryConstraint[] = []
     if (selectedEmails.value && selectedEmails.value.length > 0) {
-      constraints.push(where('assignee.email', 'in', selectedEmails.value.slice(0, 10)))
+
+      const filteredEmails = selectedEmails.value.slice(0, 10).map(i => i === 'Sin asignar' ? null : i)
+
+      if (filteredEmails.includes(null)) {
+        constraints.push(where('assignee', '==', null))
+      } else {
+        constraints.push(where('assignee.email', 'in', filteredEmails))
+      }
+
+
     }
 
 

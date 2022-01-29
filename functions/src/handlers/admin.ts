@@ -1,6 +1,7 @@
 import * as functions from "firebase-functions";
-import { DeleteRole as deleteRole, ListUserService } from "../services/admin";
-import { IsAdmin } from "../services/utils";
+import { UserData } from "../models/users";
+import { DeleteRole as deleteRole, ListUserService, RegisterNewAppEndUserService } from "../services/admin";
+import { IsAdmin, GetUserPermissions } from "../services/utils";
 
 export const DeleteRole = functions.https.onCall(
   async (data: { roleID?: string }, context) => {
@@ -67,5 +68,43 @@ export const ListUsers = functions.https.onCall(
         `Failed listing users: ${err.message}`
       );
     });
+  }
+)
+
+
+
+export const RegisterNewAppUser = functions.https.onCall(
+  async (data: { userData: UserData, roleID: string }, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        "unauthenticated",
+        "The function must be called " + "while authenticated."
+      );
+    }
+
+    if (!data || !data.roleID || !data.userData) {
+      throw new functions.https.HttpsError(
+        "failed-precondition",
+        "Please call this function will all required parameters"
+      );
+    }
+
+    const { permissions, allowedRoleIdsForCreation } = await GetUserPermissions(context.auth.uid)
+
+    if (!permissions.includes('users.write') && !permissions.includes('admin')) {
+      throw new functions.https.HttpsError(
+        "permission-denied",
+        "You do not have the users.write permission."
+      );
+    }
+
+    if (!allowedRoleIdsForCreation.includes(data.roleID) && !permissions.includes('admin')) {
+      throw new functions.https.HttpsError(
+        "permission-denied",
+        "You do not have permissions to create a user with roleID " + data.roleID
+      );
+    }
+
+    return RegisterNewAppEndUserService(data.userData, data.roleID)
   }
 )

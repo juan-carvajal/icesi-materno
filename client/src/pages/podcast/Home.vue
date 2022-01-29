@@ -15,12 +15,6 @@
       ></q-btn>
     </q-toolbar>
 
-    <q-input v-model="search" filled type="search">
-      <template v-slot:append>
-        <q-icon name="search" />
-      </template>
-    </q-input>
-
     <q-list>
       <podcast-line
         @click="selectPodcast(podcast)"
