@@ -94,6 +94,14 @@ const permissionsList: PermissionGroup[] = [
     ],
     description: 'Acceso al módulo de podcasts y aprendizaje para maternas.',
   },
+    {
+    name: 'Infografías',
+    permissions: [
+      { label: 'Ver', value: 'infographics.read' },
+      { label: 'Escritura', value: 'infographics.write' },
+    ],
+    description: 'Acceso al módulo de podcasts y aprendizaje para maternas.',
+  },
   {
     name: 'Notificaciones',
     permissions: [

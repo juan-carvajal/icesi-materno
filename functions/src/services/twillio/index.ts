@@ -8,7 +8,7 @@ const { phone_number,
 
 const TWIML_URL = 'https://us-central1-icesi-materno.cloudfunctions.net/twilio-TwiMLHandler'
 
-export const MakePhoneCall = (to:string, message:string) => {
+export const MakePhoneCall = (to: string, message: string) => {
   const url = encodeURI(`${TWIML_URL}?message=${message}`)
 
   return gcpSecretsLoader('send-message-TWILIO_AUTH_TOKEN').then(authToken => {
@@ -16,5 +16,18 @@ export const MakePhoneCall = (to:string, message:string) => {
   }).then(twilioClient => {
     return twilioClient.calls.create({ to, url, from: phone_number })
   })
+}
+
+export const MakeBatchPhoneCall = async (phones: string[], message: string) => {
+
+  const url = encodeURI(`${TWIML_URL}?message=${message}`)
+
+  const twilioClient = await gcpSecretsLoader('send-message-TWILIO_AUTH_TOKEN').then(authToken => {
+    return client(account_sid, authToken)
+  })
+
+  return Promise.all(phones.map(phone => {
+    return twilioClient.calls.create({ to: phone, url, from: phone_number })
+  }))
 }
 

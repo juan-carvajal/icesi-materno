@@ -48,7 +48,7 @@ export default route<StateInterface>(function (/* { store, ssrContext } */ store
 
       const allFullfilled = userPermissions.includes('admin') || requiredPermissions.every(i => userPermissions.includes(i))
       if (!allFullfilled) {
-        next('/forbidden')
+        next({ path: '/forbidden', query: { redirect: to.path, requiredPermissions } })
         return
       }
     }

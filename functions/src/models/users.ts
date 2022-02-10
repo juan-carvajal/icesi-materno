@@ -14,3 +14,10 @@ export interface UserData{
   email?:string;
   readonly uid? :string;
 }
+
+
+export interface User {
+  uid?: string | null;
+  email?: string | null;
+  displayName?: string | null;
+}

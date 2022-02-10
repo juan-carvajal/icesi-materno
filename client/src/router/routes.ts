@@ -12,6 +12,11 @@ const routes: RouteRecordRaw[] = [
         component: () => import('pages/podcast/Home.vue'),
       },
       {
+        path: 'infographics',
+        component: () => import('pages/infographic/Index.vue'),
+        meta: { requiredPermissions: ['infographics.read'] },
+      },
+      {
         path: 'cases',
         component: () => import('pages/cases/Home.vue'),
       },

@@ -75,6 +75,11 @@ service cloud.firestore {
       allow write: if checkAuthorization('alerts.write')
     }
 
+    match /infographics/{infographic} {
+      allow read: if checkAuthorization('infographics.read');
+      allow write: if checkAuthorization('infographics.write')
+    }
+
 
   }
 }

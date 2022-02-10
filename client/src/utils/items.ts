@@ -22,6 +22,13 @@ export const menuList: Array<MenuItem> = [
     requiredPermissions: ['podcasts.read'],
   },
   {
+    icon: 'insights',
+    label: 'Infografías',
+    separator: true,
+    to: '/infographics',
+    requiredPermissions: ['infographics.read'],
+  },
+  {
     icon: 'warning',
     label: 'Alertas',
     separator: true,

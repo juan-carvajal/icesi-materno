@@ -23,6 +23,15 @@ export interface CaseUser {
   uid?: string
 }
 
+export interface CaseAttachment {
+  path?: string,
+  mimeType?: string,
+  size?: number,
+  description?: string,
+  file?: File,
+  uploadedBy?: string
+}
+
 export interface Case {
   ID?: string,
   title: string,
@@ -34,5 +43,6 @@ export interface Case {
   assignee?: CaseUser,
   readonly reported: CaseUser,
   priority: CasePriority,
-  patient?: CaseUser
+  patient?: CaseUser,
+  attachments?: CaseAttachment[]
 }

@@ -1,6 +1,8 @@
 import * as functions from "firebase-functions";
 import * as admin from 'firebase-admin'
 import { diff } from "../services/utils";
+import { Alert } from "../models/alerts";
+import { BroadcastAlert } from "../services/alerts";
 
 
 exports.updateUserData = functions.firestore.document('userData/{uid}').onWrite(async (change, context) => {
@@ -71,3 +73,11 @@ exports.checkCaseDiff = functions.firestore
       changes: newData
     })
   });
+
+
+exports.broadcastAlert = functions.firestore.document('alerts/{alertID}').onCreate(async (change, context) => {
+
+  const alertData = { ...change.data(), id: context.params.alertID } as Alert
+
+  return BroadcastAlert(alertData)
+})

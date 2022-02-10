@@ -85,7 +85,7 @@ export const RegisterNewAppEndUserService = async (userData: UserData, roleID: s
 
   return admin.firestore().collection('notifications').add({
     to: `+57${phone}`,
-    message: `Bienvenido a ConectaDos!
+    body: `Bienvenido a ConectaDos!
     Para acceder a la plataforma por favor actualiza tu contraseña aquí: ${passWordResetLink}
     `
   })
